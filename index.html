@@ -4,21 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.11.0/axios.min.js"
-      integrity="sha512-h9644v03pHqrIHThkvXhB2PJ8zf5E9IyVnrSfZg8Yj8k4RsO4zldcQc4Bi9iVLUCCsqNY0b4WXVV4UB+wbWENA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css"
-      integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <!-- <script src="../js/axios.min.js"></script>
-    <link rel="stylesheet" href="../css/bootstrap.min.css" /> -->
+
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
     <style>
       ul,
       li {
@@ -35,7 +23,7 @@
   </head>
   <body>
     <div class="container py-3">
-      <h1 class="mb-3 text-center">카카오 검색</h1>
+      <h1 class="mb-3 text-center">카카오 블로그 검색</h1>
       <div class="row">
         <div class="offset-md-3 col-md-6">
           <form id="searchform" class="d-flex gap-2 mb-3">
@@ -63,78 +51,165 @@
               </li>
             </ul>
           </div>
+          <nav aria-label="Page navigation example" class="d-flex justify-content-center">
+            <ul class="pagination">
+              <!-- <li class="page-item"><a class="page-link" href="#">Previous</a></li> -->
+              <!-- <li class="page-item"><a class="page-link active" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item"><a class="page-link" href="#">4</a></li>
+              <li class="page-item"><a class="page-link" href="#">5</a></li> -->
+              <!-- <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
+            </ul>
+          </nav>
         </div>
       </div>
+
       <!-- <form action="test.html"> -->
     </div>
     <script>
+      let page = 1;
+      let listCnt = 3;
+      let pagerCnt = 5;
+      let totalRecord = 0; //kakao meta
+      let totalPage = 0;
+      //let query = "";
+
       //   document.getElementById("searchform").addEventListener("submit",function(){});
-      document.getElementById("searchform").addEventListener("submit", async function (e) {
+      document.getElementById("searchform").addEventListener("submit", function (e) {
         e.preventDefault();
 
         const query = document.querySelector(".search").value.trim();
         if (!query) {
           alert("검색어를 입력하세요");
         }
-        console.log(query);
+        //console.log(query);
+        page = 1;
+        searchData(query, page);
+      });
 
+      async function searchData(query, page) {
+        console.log(query, page);
         try {
           //const res = await axios.get('url',{headers:{}, params:{} })
-          const res = await axios.get(`https://dapi.kakao.com/v2/search/web`, {
+          // 1. web search
+          //const res = await axios.get(`https://dapi.kakao.com/v2/search/web`, {
+          // 2. blog search
+          const res = await axios.get(`https://dapi.kakao.com/v2/search/blog`, {
+            //const { data } = await axios.get(`https://dapi.kakao.com/v2/search/web`, {
             headers: {
               Authorization: "KakaoAK 95233250fb4a994f04e79727bfb99fdc",
             },
             params: {
               query: query,
-              size: 10,
+              page: page,
+              size: listCnt,
             },
           });
           //console.log(res);
-          //console.log(res.data);
+          console.log(res.data);
 
           const data = res.data;
           let viewData = "";
           data.documents.forEach(function (item) {
             // console.log(item.title);
+            // 1. 블로그 검색용
             viewData += `
                         <li>
                             <h4>
                             <a href="${item.url}" target="_blank" class="nav-link wrap">
                                 ${item.title}</a>
                             </h4>
-                            <p>
-                            ${item.contents}
-                            </p>
+                            <div class="d-flex gap-3"><img src="${item.thumbnail}" class="rounded">
+                                <p>${item.contents}</p>
+                            </div>
                             <p class="d-flex justify-content-end small">
                             <span>${item.datetime.split("T")[0]}</span>
                             </p>
                         </li>
                         `;
-            console.log(viewData);
+            // viewData += `
+            //              <li>
+            //                 <h4>
+            //                   <a href="${item.url}" target="_blank" class="nav-link wrap"
+            //                     >${item.title}</a
+            //                   >
+            //                 </h4>
+            //                 <div class="d-flex gap-3"><img src="${item.thumbnail}" class="rounded">
+            //                   <p>${item.contents}</p>
+            //                 </div>
+            //                 <p class="d-flex justify-content-end small">
+            //                   <span>${item.datetime.split("T")[0]}</span>
+            //                 </p>
+            //              </li>
+            //               `;
+
+            // 2.web 검색용
+            // viewData += `
+            //             <li>
+            //                 <h4>
+            //                 <a href="${item.url}" target="_blank" class="nav-link wrap">
+            //                     ${item.title}</a>
+            //                 </h4>
+            //                 <p>
+            //                 ${item.contents}
+            //                 </p>
+            //                 <p class="d-flex justify-content-end small">
+            //                 <span>${item.datetime.split("T")[0]}</span>
+            //                 </p>
+            //             </li>
+            //             `;
+            //  console.log(viewData);
             document.querySelector("#results>ul").innerHTML = viewData;
+            let is_end = data.meta.is_end;
+            console.log("마지막:" + is_end);
+
+            pagination(query, page, is_end);
           });
         } catch (error) {}
-      });
+      }
+      function pagination(query, page, isEnd) {
+        const pageView = document.querySelector(".pagination");
+        pageView.innerHTML = "";
 
-      //   async function kakaosearch(query) {
-      //     try {
-      //       //const res = await axios.get('',{})
-      //       //const res = await axios.get(`https://dapi.kakao.com/v2/search/web?query=${query}&size=50`, {
-      //       const res = await axios.get(`https://dapi.kakao.com/v2/search/web`, {
-      //         headers: {
-      //           Authorization: "KakaoAK 95233250fb4a994f04e79727bfb99fdc",
-      //         },
-      //         params: {
-      //           query: query,
-      //           size: 50,
-      //         },
-      //       });
-      //       //console.log(res.data);
-      //       console.log(res.data.documents);
-      //     } catch (error) {}
-      //   }
+        let startPage = Math.floor((page - 1) / pagerCnt) * pagerCnt + 1;
+        // (5-1)/5
+        let endPage = startPage + pagerCnt - 1;
 
-      // kakaosearch("손흥민");
+        // if (endPage > totalPage){
+        //   endPage = totalPage;
+        // }
+
+        console.log(startPage, endPage);
+
+        let pageNum = "";
+        //previous button
+        pageNum += `<li class="page-item ${
+          page == 1 ? "disabled" : ""
+        }"><a class="page-link" href="#" onclick="searchData('${query}',${page - 1})">Previous</a></li>`;
+        for (let i = startPage; i <= endPage; i++) {
+          //console.log(i);
+          pageNum += `<li class="page-item ${
+            i == page ? "active" : ""
+          }"><a class="page-link" href="#" onclick="searchData('${query}',${i})">${i}</a></li>
+          `;
+          // if (i==page){
+          //   pageNum += `<li class="page-item active">${i}</li>`;
+          // }
+          // else {
+          //   pageNum += `<li class="page-item">${i}</li>`;
+          // }
+        }
+        //next button
+        pageNum += `<li class="page-item ${
+          isEnd == true ? "disabled" : ""
+        }"><a class="page-link" href="#" onclick="searchData('${query}',${page + 1})">Next</a></li>`;
+        pageView.innerHTML = pageNum;
+      }
+
+      //pagination();
+
+      //searchData("손흥민", 4);
     </script>
   </body>
 </html>
